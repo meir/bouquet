@@ -2,3 +2,4 @@
 .env
 *.asar
 discord-source/
+bin/

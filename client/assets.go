@@ -6,5 +6,5 @@ import (
 
 // Assets contains the embedded client assets
 //
-//go:embed src/* patches/*
+//go:embed src/*
 var assets embed.FS

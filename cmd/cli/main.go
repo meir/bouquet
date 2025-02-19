@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"path/filepath"
 
-	version "github.com/meir/bouquet"
 	"github.com/meir/bouquet/internal/bouquet"
 	"github.com/meir/bouquet/pkg/discord"
 
@@ -22,7 +20,7 @@ bouquet binary version: %s
 func main() {
 	app := &cli.App{
 		Name:                 "bouquet",
-		Version:              version.VERSION,
+		Version:              bouquet.VERSION,
 		EnableBashCompletion: true,
 
 		Commands: []*cli.Command{
@@ -32,21 +30,20 @@ func main() {
 				Description: "Backup and install the bouquet in Discord",
 
 				Action: func(c *cli.Context) error {
-					path, err := discord.GetPath()
+					asar_path, err := discord.GetPath()
 					if err != nil {
 						slog.Error("could not find discord location: " + err.Error())
 					}
-					asarPath := discord.GetASARPath(path)
 
-					if err := bouquet.Backup(asarPath); err != nil {
+					if err := bouquet.Backup(asar_path); err != nil {
 						slog.Error(err.Error())
 					}
 
-					if err := bouquet.Restore(asarPath); err != nil {
+					if err := bouquet.Restore(asar_path); err != nil {
 						slog.Error(err.Error())
 					}
 
-					return bouquet.Install(asarPath)
+					return bouquet.Install(asar_path)
 
 				},
 			},
@@ -56,13 +53,22 @@ func main() {
 				Description: "Revert changes made on Discord by restoring the backup",
 
 				Action: func(c *cli.Context) error {
-					path, err := discord.GetPath()
+					asar_path, err := discord.GetPath()
 					if err != nil {
 						slog.Error("could not find discord location: " + err.Error())
 					}
-					asarPath := discord.GetASARPath(path)
 
-					return bouquet.Restore(asarPath)
+					return bouquet.Restore(asar_path)
+				},
+			},
+			{
+				Name:        "extract",
+				Aliases:     []string{"e"},
+				Description: "Extract the source code from the asar file",
+
+				Action: func(c *cli.Context) error {
+
+					return nil
 				},
 			},
 			{
@@ -71,23 +77,7 @@ func main() {
 				Description: "get the installed version of bouquet and the binary version",
 
 				Action: func(c *cli.Context) error {
-					path, err := discord.GetPath()
-					if err != nil {
-						panic("could not find discord location: " + err.Error())
-					}
-					asarPath := discord.GetASARPath(path)
-					discordVersion := filepath.Base(path)
-
-					installed, binary, err := bouquet.Version(asarPath)
-					if err != nil {
-						return err
-					}
-
-					if installed == "" {
-						installed = "not installed"
-					}
-
-					fmt.Printf(version_text, path, discordVersion, installed, binary)
+					fmt.Printf(version_text, bouquet.VERSION)
 					return nil
 				},
 			},

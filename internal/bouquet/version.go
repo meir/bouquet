@@ -4,9 +4,12 @@ import (
 	"errors"
 	"strings"
 
-	version "github.com/meir/bouquet"
+	_ "embed"
 	"github.com/meir/bouquet/pkg/asar"
 )
+
+//go:embed VERSION
+var VERSION string
 
 // Version will return the installed version of bouquet and the current version of the binary
 func Version(asarPath string) (string, string, error) {
@@ -20,7 +23,7 @@ func Version(asarPath string) (string, string, error) {
 	}
 
 	installedVersion := a.Header.Get("bouquet/VERSION")
-	version := strings.TrimSpace(version.VERSION)
+	version := strings.TrimSpace(VERSION)
 	if installedVersion == nil {
 		return "", version, nil
 	}

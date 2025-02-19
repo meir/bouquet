@@ -2,7 +2,6 @@ package client
 
 import (
 	"github.com/evanw/esbuild/pkg/api"
-	version "github.com/meir/bouquet"
 	"github.com/meir/bouquet/pkg/asar"
 )
 
@@ -26,9 +25,9 @@ func NewClient(asarFile *asar.Asar) *Client {
 // to run the asar file, you will still need to pack it and place it at the correct location
 func (c *Client) Inject() error {
 	// apply the patches for the injection hooks
-	if err := c.applyVersionPatches(); err != nil {
-		return err
-	}
+	// if err := c.applyVersionPatches(); err != nil {
+	// 	return err
+	// }
 
 	// override headers are the files that just need to be overwritten and not built
 	if err := c.override_header(); err != nil {
@@ -42,8 +41,6 @@ func (c *Client) Inject() error {
 
 	// creates a header out of the built client
 	client := c.client_header()
-	versionFile := asar.NewFile([]byte(version.VERSION), false)
-	client.Add("VERSION", versionFile)
 
 	// add the client to the asar file
 	c.asarFile.Header.Add(client_root, client)
