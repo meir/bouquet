@@ -1,12 +1,14 @@
 package client
 
 import (
+	"path/filepath"
+
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/meir/bouquet/pkg/asar"
 )
 
 // client_root is the root directory of the client files in the ASAR file and in src
-const client_root = "bouquet"
+const client_root = "app_bootstrap"
 
 // Client is the client injector for bouquet
 type Client struct {
@@ -21,19 +23,27 @@ func NewClient(asarFile *asar.Asar) *Client {
 	}
 }
 
-// Inject will inject the bouquet client into the provided asar file
-// to run the asar file, you will still need to pack it and place it at the correct location
-func (c *Client) Inject() error {
-	// apply the patches for the injection hooks
-	// if err := c.applyVersionPatches(); err != nil {
-	// 	return err
-	// }
-
-	// override headers are the files that just need to be overwritten and not built
-	if err := c.override_header(); err != nil {
-		return err
+// client_header will return the asar header for the built client
+// will return nil if build has not been ran or has no output files
+func (c *Client) client_header() *asar.Header {
+	if c.buildResult.OutputFiles == nil {
+		return nil
 	}
 
+	header := asar.NewFolder()
+
+	for _, file := range c.buildResult.OutputFiles {
+		path := filepath.Base(file.Path)
+		fileHeader := asar.NewFile(file.Contents, false)
+		header.Add(path, fileHeader)
+	}
+
+	return header
+}
+
+// Build will write the bouquet client into the provided asar file
+// to run the asar file, you will still need to pack it and place it at the correct location
+func (c *Client) Build() error {
 	// build the client from src/bouquet
 	if err := c.build(); err != nil {
 		return err

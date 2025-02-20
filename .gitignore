@@ -1,5 +1,6 @@
 .DS_Store
 .env
 *.asar
-discord-source/
+*-source/
 bin/
+**/node_modules/

@@ -11,12 +11,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const version_text = `path: %s
-discord host version: %s
-installed bouquet version: %s
-bouquet binary version: %s
-`
-
 func main() {
 	app := &cli.App{
 		Name:                 "bouquet",
@@ -45,6 +39,15 @@ func main() {
 
 					return bouquet.Install(asar_path)
 
+				},
+			},
+			{
+				Name:        "build",
+				Aliases:     []string{"b"},
+				Description: "Build an asar file in the current directory",
+
+				Action: func(c *cli.Context) error {
+					return bouquet.Install("./build.asar")
 				},
 			},
 			{
@@ -77,7 +80,7 @@ func main() {
 				Description: "get the installed version of bouquet and the binary version",
 
 				Action: func(c *cli.Context) error {
-					fmt.Printf(version_text, bouquet.VERSION)
+					fmt.Printf("Version: v%s", bouquet.VERSION)
 					return nil
 				},
 			},

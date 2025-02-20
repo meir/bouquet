@@ -1,6 +1,7 @@
 package asar
 
 import (
+	"fmt"
 	"io"
 	"os"
 )
@@ -24,19 +25,35 @@ const META_SIZE = 16
 // NewAsar parses an asar file given using the path.
 func NewAsar(filePath string) (*Asar, error) {
 	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
+	if os.IsNotExist(err) {
+		// Return an empty asar file
+		return &Asar{
+			Location: filePath,
+			raw:      []byte{},
+
+			Meta: &Meta{0, 0, 0, 0},
+			Header: &Header{
+				content:    []byte{},
+				name:       "/",
+				Size:       0,
+				Offset:     "0",
+				Executable: false,
+				Files:      map[string]*Header{},
+			},
+		}, nil
+	} else if err != nil {
+		return nil, fmt.Errorf("ASAR open: %w", err)
 	}
 	defer file.Close()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ASAR read: %w", err)
 	}
 
 	meta, err := getMeta(data[:META_SIZE])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ASAR read meta: %w", err)
 	}
 
 	headerEnd := META_SIZE + meta.ContentOffset
@@ -71,9 +88,18 @@ func (asar *Asar) Pack() (int, error) {
 	asarContent := append(meta, append(header, content...)...)
 
 	f, err := os.OpenFile(asar.Location, os.O_RDWR, 0755)
-	if err != nil {
-		return 0, err
+	if os.IsNotExist(err) {
+		f, err = os.Create(asar.Location)
 	}
 
-	return f.Write(asarContent)
+	if err != nil {
+		return 0, fmt.Errorf("ASAR pack open: %w", err)
+	}
+
+	written, err := f.Write(asarContent)
+	if err != nil {
+		return 0, fmt.Errorf("ASAR pack write: %w", err)
+	}
+
+	return written, nil
 }

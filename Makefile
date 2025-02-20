@@ -11,6 +11,13 @@ else
     endif
 endif
 
+setup:
+	if [ -d ./client/src/node_modules ]; then \
+		echo "Node modules already installed"; \
+	else \
+		cd ./client/src && npm install; \
+	fi
+
 backup:
 	if [ -f ./app.asar ]; then \
 		echo "Backup already exists"; \
@@ -29,10 +36,15 @@ extract: backup
 	mkdir -p ./discord-source
 	npx asar extract "$(DISCORD_ASAR)" ./discord-source
 
+extract-bouquet:
+	mkdir -p ./bouquet-source
+	npx asar extract "./build.asar" ./bouquet-source
+
 clean:
-	rm -f ./app.asar
-	rm -rf ./discord-source
+	rm -f ./*.asar
+	rm -rf ./*-source
+	rm -rf ./client/src/node_modules
 	go mod tidy
 
-build:
+build: setup
 	go build -o ./bin/bouquet ./cmd/cli/main.go

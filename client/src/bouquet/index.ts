@@ -1,22 +1,6 @@
+import global from "./global/index.ts";
+import discord from "./discord/index.ts";
 
-declare let global: any;
+console.log(global.bouquetVersion);
 
-import version from './version.ts'
-import { info, warn, fatal } from './logger/index.ts'
-import window from './util/window.ts'
-import preload from './preload.ts'
-
-function init() {
-  global.bouquet = {
-    info, warn, fatal,
-    version,
-    window,
-  }
-
-  global.bouquet.info(`Version ${version}`)
-}
-
-export {
-  preload,
-  init,
-}
+discord(global.overlay);

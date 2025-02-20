@@ -1,0 +1,10 @@
+{
+  "name": "bouquet",
+  "description": "an injected discord client",
+  "main": "app_bootstrap/index.js",
+  "devDependencies": {
+    "electron": "28.2.10",
+    "@types/node": "*",
+    "typescript": "^5.7.3"
+  }
+}
